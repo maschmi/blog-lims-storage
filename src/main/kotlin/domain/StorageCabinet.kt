@@ -4,13 +4,18 @@ import flatMap
 import java.util.*
 
 
-class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: Room) {
+class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: Room, storageBoxes: List<StorageBox>) {
 
     var name = name
         private set
 
     var room = room
         private set
+
+    private val _storageBoxes = storageBoxes.associateBy { it.id }.toMutableMap()
+
+    val storageBoxes: List<StorageBox>
+        get() = _storageBoxes.values.toList()
 
 
     override fun equals(other: Any?): Boolean {
@@ -34,6 +39,25 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
             }
     }
 
+    fun addStorageBox(storageBox: StorageBox) : Result<StorageCabinet> {
+        return if (_storageBoxes.containsKey(storageBox.id)) {
+            Result.failure(AlreadyExists(storageBox.id.toString()))
+        } else {
+            _storageBoxes.put(storageBox.id, storageBox)
+            Result.success(this)
+        }
+    }
+
+    fun removeStorageBox(storageBoxId: StorageBoxId) : Result<StorageCabinet> {
+        return if (!_storageBoxes.containsKey(storageBoxId)) {
+            Result.failure(NotFound(storageBoxId.toString()))
+        } else {
+            _storageBoxes.remove(storageBoxId)
+            Result.success(this)
+        }
+    }
+
+
     // we could opt to return nothing or only StorageCabinet
     // However, returning a Result makes the API of the StorageCabinet consistent
     fun updateRoom(newRoom: Room) : Result<StorageCabinet> {
@@ -46,7 +70,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
         fun commission(name: StorageCabinetName, room: Room, repository: StorageRepository, validator: StorageValidator): Result<StorageCabinet> {
             return validator.validateName(name)
                 .flatMap {
-                    val cabinet = StorageCabinet(StorageCabinetId.new(), it, room)
+                    val cabinet = StorageCabinet(StorageCabinetId.new(), it, room, emptyList())
                     repository.add(cabinet)
                 }
         }

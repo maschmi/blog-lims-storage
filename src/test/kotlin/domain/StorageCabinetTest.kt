@@ -4,8 +4,10 @@ import TestDataFactory
 import boundary.persistence.StorageInMemoryPersistence
 import copy
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.equality.shouldBeEqualUsingFields
@@ -21,7 +23,8 @@ class StorageCabinetTest : DescribeSpec({
             val validator = StorageValidator(repository)
             val expectedCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
 
-            val newCabinet = StorageCabinet.commission(expectedCabinet.name, expectedCabinet.room, repository, validator)
+            val newCabinet =
+                StorageCabinet.commission(expectedCabinet.name, expectedCabinet.room, repository, validator)
 
             newCabinet shouldBeSuccess {
                 it.shouldBeEqualToIgnoringFields(expectedCabinet, StorageCabinet::id)
@@ -120,4 +123,62 @@ class StorageCabinetTest : DescribeSpec({
             cabinet shouldBeEqualToComparingFields expectedCabinet
         }
     }
+
+    describe("Add storage box") {
+        it("adds a storage box to the storage cabinet") {
+            val cabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            val storageBox = TestDataFactory.createRandomDefaultStorageBox()
+            require(cabinet.storageBoxes.none { it.id == storageBox.id })
+
+            val result = cabinet.addStorageBox(storageBox)
+
+            cabinet.storageBoxes.contains(storageBox)
+            result shouldBeSuccess cabinet
+        }
+
+        it("does not add storage box when it is already added") {
+            val cabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            val storageBox = TestDataFactory.createRandomDefaultStorageBox()
+            val otherBox = storageBox.copy(
+                name = StorageBoxName("AnotherName"),
+                description = StorageBoxDescription("anotherDescription")
+            )
+            cabinet.addStorageBox(storageBox)
+            require(cabinet.storageBoxes.any { it.id == storageBox.id })
+
+            val result = cabinet.addStorageBox(otherBox)
+            result shouldBeFailure {
+                it shouldBe AlreadyExists(otherBox.id.toString())
+            }
+        }
+    }
+
+    describe("Remove storage box") {
+        it("removes storage box if it exists") {
+            val cabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            val storageBox = TestDataFactory.createRandomDefaultStorageBox()
+            cabinet.addStorageBox(storageBox)
+            require(cabinet.storageBoxes.any { it.id == storageBox.id })
+
+            val result = cabinet.removeStorageBox(storageBox.id)
+
+            cabinet.storageBoxes.shouldNotContain(storageBox)
+            result shouldBeSuccess cabinet
+        }
+
+        it("does not remove storage box if it was never there") {
+            val cabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            val storageBox = TestDataFactory.createRandomDefaultStorageBox()
+            val otherBox = TestDataFactory.createRandomDefaultStorageBox()
+            cabinet.addStorageBox(storageBox)
+            require(cabinet.storageBoxes.any { it.id == storageBox.id })
+
+            val result = cabinet.removeStorageBox(otherBox.id)
+            result shouldBeFailure {
+                it shouldBe NotFound(otherBox.id.toString())
+            }
+            cabinet.storageBoxes shouldContain storageBox
+        }
+    }
+
 })

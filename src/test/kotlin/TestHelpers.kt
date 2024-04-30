@@ -1,7 +1,4 @@
-import domain.Room
-import domain.StorageCabinet
-import domain.StorageCabinetId
-import domain.StorageCabinetName
+import domain.*
 
 
 fun generateRandomString(length: Int): String {
@@ -12,5 +9,15 @@ fun generateRandomString(length: Int): String {
 }
 
 
-fun StorageCabinet.copy(id: StorageCabinetId = this.id, name: StorageCabinetName  = this.name, room: Room = this.room) =
-    StorageCabinet(id, name, room)
+fun StorageCabinet.copy(
+    id: StorageCabinetId = this.id,
+    name: StorageCabinetName = this.name,
+    room: Room = this.room,
+    storageBoxes: List<StorageBox> = this.storageBoxes
+) = StorageCabinet(id, name, room, storageBoxes)
+
+fun StorageBox.copy(
+    id: StorageBoxId = this.id,
+    name: StorageBoxName,
+    description: StorageBoxDescription
+) = StorageBox(id, name, description)

@@ -1,13 +1,18 @@
 package domain
 
 import generateRandomString
-import kotlin.random.Random
 
 class StorageCabinetBuilder {
 
     private var name = StorageCabinetName("Storage-${generateRandomString(10)}")
     private var room = RoomBuilder().build()
     private var id = StorageCabinetId.new()
+    private var boxes = emptyList<StorageBox>()
+
+    fun withStorageBoxes(boxes: List<StorageBox>): StorageCabinetBuilder {
+       this.boxes = boxes
+       return this
+    }
 
     fun withId(id: StorageCabinetId): StorageCabinetBuilder {
         this.id = id
@@ -31,7 +36,7 @@ class StorageCabinetBuilder {
     }
 
     fun build(): StorageCabinet {
-        return StorageCabinet(id, name, room)
+        return StorageCabinet(id, name, room, boxes)
     }
 
 }
