@@ -4,9 +4,12 @@ import flatMap
 import java.util.*
 
 
-class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName) {
+class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: Room) {
 
     var name = name
+        private set
+
+    var room = room
         private set
 
 
@@ -31,12 +34,19 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName) {
             }
     }
 
+    // we could opt to return nothing or only StorageCabinet
+    // However, returning a Result makes the API of the StorageCabinet consistent
+    fun updateRoom(newRoom: Room) : Result<StorageCabinet> {
+        this.room = newRoom
+        return Result.success(this)
+    }
+
 
     companion object {
-        fun commission(name: StorageCabinetName, repository: StorageRepository, validator: StorageValidator): Result<StorageCabinet> {
+        fun commission(name: StorageCabinetName, room: Room, repository: StorageRepository, validator: StorageValidator): Result<StorageCabinet> {
             return validator.validateName(name)
                 .flatMap {
-                    val cabinet = StorageCabinet(StorageCabinetId.new(), it)
+                    val cabinet = StorageCabinet(StorageCabinetId.new(), it, room)
                     repository.add(cabinet)
                 }
         }

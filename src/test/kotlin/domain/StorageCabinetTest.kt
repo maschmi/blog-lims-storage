@@ -17,9 +17,9 @@ class StorageCabinetTest : DescribeSpec({
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
             val newName = StorageCabinetName("Cabinet 000")
-            val expectedCabinet = StorageCabinet(StorageCabinetId.new(), newName)
+            val expectedCabinet = StorageCabinet(StorageCabinetId.new(), newName, Room(RoomName("Room")))
 
-            val newCabinet = StorageCabinet.commission(newName, repository, validator)
+            val newCabinet = StorageCabinet.commission(expectedCabinet.name, expectedCabinet.room, repository, validator)
 
             newCabinet shouldBeSuccess {
                 it.shouldBeEqualToIgnoringFields(expectedCabinet, StorageCabinet::id)
@@ -30,9 +30,9 @@ class StorageCabinetTest : DescribeSpec({
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
             val duplicatedName = StorageCabinetName("Cabinet 000")
-            StorageCabinet.commission(duplicatedName, repository, validator)
+            StorageCabinet.commission(duplicatedName, Room(RoomName("room")), repository, validator)
 
-            val newCabinet = StorageCabinet.commission(duplicatedName, repository, validator)
+            val newCabinet = StorageCabinet.commission(duplicatedName, Room(RoomName("room")), repository, validator)
 
             newCabinet shouldBeFailure {
                 it shouldBeEqualUsingFields ConstraintViolation("Name already used")
@@ -44,7 +44,7 @@ class StorageCabinetTest : DescribeSpec({
         it("does nothing if it was already decommissioned or never there") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), repository, validator).getOrThrow()
+            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
             val idOfNotExistingCabinet = StorageCabinetId.new()
             require(repository.getAll().size == 1)
 
@@ -56,7 +56,7 @@ class StorageCabinetTest : DescribeSpec({
         it("removes the storage cabinet from the repository") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), repository, validator).getOrThrow()
+            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
             require(repository.getAll().size == 1)
 
             StorageCabinet.decommission(existingCabinet.id, repository)
@@ -69,9 +69,9 @@ class StorageCabinetTest : DescribeSpec({
         it("updates cabinet name if the name is not yet existing in the repository") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            StorageCabinet.commission(StorageCabinetName("other"), repository, validator).getOrThrow()
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), repository, validator).getOrThrow()
-            val expectedCabinet = StorageCabinet(existingCabinet.id, StorageCabinetName("newName"))
+            StorageCabinet.commission(StorageCabinetName("other"), Room(RoomName("room")), repository, validator).getOrThrow()
+            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
+            val expectedCabinet = StorageCabinet(existingCabinet.id, StorageCabinetName("newName"), Room(RoomName("room")))
             require(repository.getAll().size == 2)
 
             val result = existingCabinet.updateName(expectedCabinet.name, validator)
@@ -88,8 +88,8 @@ class StorageCabinetTest : DescribeSpec({
         it("returns failure when name is already existing in repository") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            val otherCabinet =  StorageCabinet.commission(StorageCabinetName("other"), repository, validator).getOrThrow()
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), repository, validator).getOrThrow()
+            val otherCabinet =  StorageCabinet.commission(StorageCabinetName("other"), Room(RoomName("room")), repository, validator).getOrThrow()
+            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
             require(repository.getAll().size == 2)
 
             val result = existingCabinet.updateName(otherCabinet.name, validator)
