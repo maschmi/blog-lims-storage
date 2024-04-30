@@ -1,9 +1,12 @@
 package domain
 
+import TestDataFactory
 import boundary.persistence.StorageInMemoryPersistence
+import copy
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.equality.shouldBeEqualUsingFields
 import io.kotest.matchers.result.shouldBeFailure
@@ -16,8 +19,7 @@ class StorageCabinetTest : DescribeSpec({
         it("adds new cabinet to repository and returns it") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            val newName = StorageCabinetName("Cabinet 000")
-            val expectedCabinet = StorageCabinet(StorageCabinetId.new(), newName, Room(RoomName("Room")))
+            val expectedCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
 
             val newCabinet = StorageCabinet.commission(expectedCabinet.name, expectedCabinet.room, repository, validator)
 
@@ -30,9 +32,10 @@ class StorageCabinetTest : DescribeSpec({
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
             val duplicatedName = StorageCabinetName("Cabinet 000")
-            StorageCabinet.commission(duplicatedName, Room(RoomName("room")), repository, validator)
+            val room = TestDataFactory.createRandomDefaultRoom()
+            StorageCabinet.commission(duplicatedName, room, repository, validator)
 
-            val newCabinet = StorageCabinet.commission(duplicatedName, Room(RoomName("room")), repository, validator)
+            val newCabinet = StorageCabinet.commission(duplicatedName, room, repository, validator)
 
             newCabinet shouldBeFailure {
                 it shouldBeEqualUsingFields ConstraintViolation("Name already used")
@@ -43,8 +46,8 @@ class StorageCabinetTest : DescribeSpec({
     describe("Decommission a storage cabinet") {
         it("does nothing if it was already decommissioned or never there") {
             val repository = StorageInMemoryPersistence()
-            val validator = StorageValidator(repository)
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
+            val existingCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            repository.add(existingCabinet)
             val idOfNotExistingCabinet = StorageCabinetId.new()
             require(repository.getAll().size == 1)
 
@@ -55,8 +58,8 @@ class StorageCabinetTest : DescribeSpec({
 
         it("removes the storage cabinet from the repository") {
             val repository = StorageInMemoryPersistence()
-            val validator = StorageValidator(repository)
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
+            val existingCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            repository.add(existingCabinet)
             require(repository.getAll().size == 1)
 
             StorageCabinet.decommission(existingCabinet.id, repository)
@@ -69,9 +72,11 @@ class StorageCabinetTest : DescribeSpec({
         it("updates cabinet name if the name is not yet existing in the repository") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            StorageCabinet.commission(StorageCabinetName("other"), Room(RoomName("room")), repository, validator).getOrThrow()
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
-            val expectedCabinet = StorageCabinet(existingCabinet.id, StorageCabinetName("newName"), Room(RoomName("room")))
+            repository.add(TestDataFactory.createRandomDefaultStorageCabinet())
+            val existingCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            repository.add(existingCabinet)
+
+            val expectedCabinet = existingCabinet.copy(name = StorageCabinetName("newName"))
             require(repository.getAll().size == 2)
 
             val result = existingCabinet.updateName(expectedCabinet.name, validator)
@@ -88,8 +93,11 @@ class StorageCabinetTest : DescribeSpec({
         it("returns failure when name is already existing in repository") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            val otherCabinet =  StorageCabinet.commission(StorageCabinetName("other"), Room(RoomName("room")), repository, validator).getOrThrow()
-            val existingCabinet = StorageCabinet.commission(StorageCabinetName("existing"), Room(RoomName("room")), repository, validator).getOrThrow()
+            val otherCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            repository.add(otherCabinet)
+            val existingCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            repository.add(existingCabinet)
+
             require(repository.getAll().size == 2)
 
             val result = existingCabinet.updateName(otherCabinet.name, validator)
@@ -100,5 +108,16 @@ class StorageCabinetTest : DescribeSpec({
         }
     }
 
+    describe("Update room of storage cabinet") {
+        it("updates room") {
+            val cabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            val newRoom = TestDataFactory.createRandomDefaultRoom()
+            require(cabinet.room != newRoom)
+            val expectedCabinet = cabinet.copy(room = newRoom)
 
+            cabinet.updateRoom(newRoom)
+
+            cabinet shouldBeEqualToComparingFields expectedCabinet
+        }
+    }
 })
