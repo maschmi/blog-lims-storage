@@ -2,7 +2,7 @@ package boundary.persistence
 
 import domain.*
 
-object StorageInMemoryPersistence : StorageRepository {
+class StorageInMemoryPersistence : StorageRepository {
 
     private val cabinets: MutableMap<StorageCabinetId, StorageCabinet> = mutableMapOf()
 
@@ -29,6 +29,10 @@ object StorageInMemoryPersistence : StorageRepository {
         return Result.success(Unit)
     }
 
+    override fun findByName(name: StorageCabinetName): StorageCabinet? {
+        return cabinets.filterValues { it.name == name }.entries.firstOrNull()?.value
+    }
+
     override fun get(cabinetId: StorageCabinetId): Result<StorageCabinet> {
         return cabinets[cabinetId]?.let {
             Result.success(it)
@@ -36,6 +40,6 @@ object StorageInMemoryPersistence : StorageRepository {
     }
 
     override fun getAll(): List<StorageCabinet> {
-        TODO("Not yet implemented")
+        return cabinets.values.toList()
     }
 }

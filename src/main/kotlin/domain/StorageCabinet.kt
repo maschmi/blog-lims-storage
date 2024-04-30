@@ -1,5 +1,6 @@
 package domain
 
+import flatMap
 import java.util.*
 
 
@@ -22,16 +23,26 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName) {
         return id.hashCode()
     }
 
-    fun updateName(newName: StorageCabinetName) {
-        this.name = newName
+    fun updateName(newName: StorageCabinetName, validator: StorageValidator) : Result<StorageCabinet> {
+        return validator.validateName(newName, this.id)
+            .map {
+                this.name = it
+                this
+            }
     }
 
+
     companion object {
-        fun create(name: StorageCabinetName): StorageCabinet {
-            return StorageCabinet(
-                StorageCabinetId(UUID.randomUUID()),
-                name
-            )
+        fun commission(name: StorageCabinetName, repository: StorageRepository, validator: StorageValidator): Result<StorageCabinet> {
+            return validator.validateName(name)
+                .flatMap {
+                    val cabinet = StorageCabinet(StorageCabinetId.new(), it)
+                    repository.add(cabinet)
+                }
+        }
+
+        fun decommission(id: StorageCabinetId, repository: StorageRepository) {
+            repository.delete(id)
         }
     }
 }
@@ -40,4 +51,10 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName) {
 value class StorageCabinetName(val name: String)
 
 @JvmInline
-value class StorageCabinetId(val id: UUID)
+value class StorageCabinetId(val id: UUID) {
+    companion object {
+        fun new(): StorageCabinetId {
+            return StorageCabinetId(UUID.randomUUID())
+        }
+    }
+}

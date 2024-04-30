@@ -1,17 +1,13 @@
 package application
 
-import domain.StorageCabinet
-import domain.StorageCabinetId
-import domain.StorageCabinetName
-import domain.StorageRepository
+import domain.*
+import flatMap
 
-class ChangeNameOfStorageCabinet(private val repository: StorageRepository) {
+class ChangeNameOfStorageCabinet(private val repository: StorageRepository, private val validator: StorageValidator) {
 
-    fun execute(id: StorageCabinetId, newName: StorageCabinetName) : Result<Result<StorageCabinet>> {
-        return repository.get(id).map { cabinet ->
-            cabinet.updateName(newName)
-            repository.update(cabinet)
-
-        }
+    fun execute(id: StorageCabinetId, newName: StorageCabinetName): Result<StorageCabinet> {
+        return repository.get(id)
+            .flatMap { it.updateName(newName, validator) }
+            .flatMap { repository.update(it) }
     }
 }
