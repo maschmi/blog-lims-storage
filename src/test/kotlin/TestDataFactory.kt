@@ -5,7 +5,7 @@ import domain.StorageCabinetBuilder
 object TestDataFactory {
 
     fun storageCabinetBuilder() = StorageCabinetBuilder()
-    fun createRandomDefaultStorageCabinet() = StorageCabinetBuilder().build()
+    fun createRandomDefaultStorageCabinet() = StorageCabinetBuilder().withStorageBoxes(listOf(StorageBoxBuilder().build())).build()
 
     fun roomBuilder() = RoomBuilder()
     fun createRandomDefaultRoom() = RoomBuilder().build()
