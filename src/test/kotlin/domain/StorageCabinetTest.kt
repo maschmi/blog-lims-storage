@@ -54,21 +54,36 @@ class StorageCabinetTest : DescribeSpec({
             val idOfNotExistingCabinet = StorageCabinetId.new()
             require(repository.getAll().size == 1)
 
-            StorageCabinet.decommission(idOfNotExistingCabinet, repository)
+            val result = StorageCabinet.decommission(idOfNotExistingCabinet, repository)
+            result.shouldBeFailure(NotFound(idOfNotExistingCabinet.toString()))
 
             repository.getAll() shouldContainExactly listOf(existingCabinet)
         }
 
-        it("removes the storage cabinet from the repository") {
+        it("returns InUseError when Storage Cabinet is not empty") {
             val repository = StorageInMemoryPersistence()
             val existingCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
             repository.add(existingCabinet)
             require(repository.getAll().size == 1)
 
-            StorageCabinet.decommission(existingCabinet.id, repository)
+            val result = StorageCabinet.decommission(existingCabinet.id, repository)
 
+            result.shouldBeFailure(InUseException(existingCabinet.id.toString()))
+            repository.getAll() shouldContainExactly listOf(existingCabinet)
+        }
+
+        it("removes empty StorageCabinet from repository") {
+            val repository = StorageInMemoryPersistence()
+            val existingCabinet = TestDataFactory.createEmptyDefaultStorageCabinet()
+            repository.add(existingCabinet)
+            require(repository.getAll().size == 1)
+
+            val result = StorageCabinet.decommission(existingCabinet.id, repository)
+
+            result.shouldBeSuccess()
             repository.getAll() shouldHaveSize 0
         }
+
     }
 
     describe("Update name of storage cabinet") {
