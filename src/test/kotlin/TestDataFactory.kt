@@ -7,6 +7,9 @@ object TestDataFactory {
     fun storageCabinetBuilder() = StorageCabinetBuilder()
     fun createRandomDefaultStorageCabinet() = StorageCabinetBuilder().withStorageBoxes(listOf(StorageBoxBuilder().build())).build()
 
+    fun createEmptyDefaultStorageCabinet() = StorageCabinetBuilder().build()
+
+
     fun roomBuilder() = RoomBuilder()
     fun createRandomDefaultRoom() = RoomBuilder().build()
 

@@ -18,10 +18,10 @@ import io.kotest.matchers.shouldBe
 class StorageCabinetTest : DescribeSpec({
 
     describe("Commission a new StorageCabinet") {
-        it("adds new cabinet to repository and returns it") {
+        it("adds new empty cabinet to repository and returns it") {
             val repository = StorageInMemoryPersistence()
             val validator = StorageValidator(repository)
-            val expectedCabinet = TestDataFactory.createRandomDefaultStorageCabinet()
+            val expectedCabinet = TestDataFactory.createEmptyDefaultStorageCabinet()
 
             val newCabinet =
                 StorageCabinet.commission(expectedCabinet.name, expectedCabinet.room, repository, validator)
