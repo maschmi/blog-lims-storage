@@ -20,3 +20,9 @@ class ConstraintViolation(val constraint: String) : DomainErrors() {
         return "ConstraintViolation(constraint='$constraint')"
     }
 }
+
+class InUseException(val entity: String) : DomainErrors() {
+    override fun toString(): String {
+        return "InUseException(entity='$entity')"
+    }
+}

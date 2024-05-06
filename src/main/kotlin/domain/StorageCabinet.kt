@@ -31,7 +31,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
         return id.hashCode()
     }
 
-    fun updateName(newName: StorageCabinetName, validator: StorageValidator) : Result<StorageCabinet> {
+    fun updateName(newName: StorageCabinetName, validator: StorageValidator): Result<StorageCabinet> {
         return validator.validateName(newName, this.id)
             .map {
                 this.name = it
@@ -39,7 +39,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
             }
     }
 
-    fun addStorageBox(storageBox: StorageBox) : Result<StorageCabinet> {
+    fun addStorageBox(storageBox: StorageBox): Result<StorageCabinet> {
         return if (_storageBoxes.containsKey(storageBox.id)) {
             Result.failure(AlreadyExists(storageBox.id.toString()))
         } else {
@@ -48,7 +48,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
         }
     }
 
-    fun removeStorageBox(storageBoxId: StorageBoxId) : Result<StorageCabinet> {
+    fun removeStorageBox(storageBoxId: StorageBoxId): Result<StorageCabinet> {
         return if (!_storageBoxes.containsKey(storageBoxId)) {
             Result.failure(NotFound(storageBoxId.toString()))
         } else {
@@ -60,14 +60,19 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
 
     // we could opt to return nothing or only StorageCabinet
     // However, returning a Result makes the API of the StorageCabinet consistent
-    fun updateRoom(newRoom: Room) : Result<StorageCabinet> {
+    fun updateRoom(newRoom: Room): Result<StorageCabinet> {
         this.room = newRoom
         return Result.success(this)
     }
 
 
     companion object {
-        fun commission(name: StorageCabinetName, room: Room, repository: StorageRepository, validator: StorageValidator): Result<StorageCabinet> {
+        fun commission(
+            name: StorageCabinetName,
+            room: Room,
+            repository: StorageRepository,
+            validator: StorageValidator
+        ): Result<StorageCabinet> {
             return validator.validateName(name)
                 .flatMap {
                     val cabinet = StorageCabinet(StorageCabinetId.new(), it, room, emptyList())
@@ -75,8 +80,16 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
                 }
         }
 
-        fun decommission(id: StorageCabinetId, repository: StorageRepository) {
-            repository.delete(id)
+        fun decommission(id: StorageCabinetId, repository: StorageRepository): Result<Unit> {
+            return repository.get(id)
+                .fold({ success ->
+                    if (success._storageBoxes.isNotEmpty()) {
+                        Result.failure(InUseException(success.id.toString()))
+                    } else {
+                        Result.success(success)
+                    }
+                }, { failure -> Result.failure(failure) })
+                .flatMap { repository.delete(id) }
         }
     }
 }
