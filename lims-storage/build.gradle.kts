@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("jvm")
 }
@@ -17,10 +19,15 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$koTestVersion")
     testImplementation("io.mockk:mockk:${mockkVersion}")
 }
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
+    jvmToolchain(21)
+
+}
 
 tasks.test {
     useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
 }
