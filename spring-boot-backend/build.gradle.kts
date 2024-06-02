@@ -1,11 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-	id("org.springframework.boot") version "3.3.0"
-	id("io.spring.dependency-management") version "1.1.5"
-	kotlin("jvm") version "2.0.0"
-	kotlin("plugin.spring") version "2.0.0"
-	kotlin("plugin.jpa") version "2.0.0"
+	id("org.springframework.boot")
+	id("io.spring.dependency-management")
+	kotlin("jvm")
+	kotlin("plugin.spring")
+	kotlin("plugin.jpa")
+	kotlin("kapt")
 }
 
 group = "de.maschmi.blog"
@@ -23,6 +24,7 @@ dependencies{
 	val koTestVersion: String by properties
 	val koTestSpringVersion: String by properties
 	val mockkVersion: String by properties
+	val mapstructVersion: String by properties
 
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -43,6 +45,10 @@ dependencies{
 
 
 	implementation("de.maschmi.blog:lims-storage-boot-starter")
+
+	implementation("org.mapstruct:mapstruct:$mapstructVersion")
+
+	kapt("org.mapstruct:mapstruct-processor:$mapstructVersion")
 }
 
 kotlin {
@@ -50,8 +56,17 @@ kotlin {
 		freeCompilerArgs.add("-Xjsr305=strict")
 		jvmTarget.set(JvmTarget.JVM_21)
 	}
+	jvmToolchain(21)
 }
 
+kapt {
+	arguments {
+		// Set Mapstruct Configuration options here
+		// https://kotlinlang.org/docs/reference/kapt.html#annotation-processor-arguments
+		// https://mapstruct.org/documentation/stable/reference/html/#configuration-options
+		arg("mapstruct.defaultComponentModel", "spring")
+	}
+}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
