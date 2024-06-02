@@ -11,9 +11,6 @@ import java.util.*
 @Component
 object ValueClassMapper {
 
-    fun toRoomName(value: String): RoomName = RoomName(value = value)
-    fun toRoomNameVata(value: RoomName): String = value.value
-
     fun toStorageBoxId(value: UUID): StorageBoxId = StorageBoxId(value = value)
     fun toStorageBoxIdValue(value: StorageBoxId): UUID = value.value
     fun toStorageBoxName(value: String): StorageBoxName = StorageBoxName(value = value)
@@ -21,5 +18,7 @@ object ValueClassMapper {
     fun toStorageBoxDescription(value: String): StorageBoxDescription = StorageBoxDescription(value = value)
     fun toStorageBoxDescriptionValue(value: StorageBoxDescription): String = value.value
 
+    fun toRoomName(value: String): RoomName = RoomName(value = value)
+    fun toRoomNameData(value: RoomName): String = value.value
 
 }

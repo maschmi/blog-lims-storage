@@ -4,4 +4,4 @@ import domain.Room
 import jakarta.persistence.Embeddable
 
 @Embeddable
-data class RoomData(val room: String)
+data class RoomData(val name: String)
