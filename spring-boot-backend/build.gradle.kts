@@ -6,7 +6,7 @@ plugins {
 	kotlin("jvm")
 	kotlin("plugin.spring")
 	kotlin("plugin.jpa")
-	kotlin("kapt")
+//	kotlin("kapt")
 }
 
 group = "de.maschmi.blog"
@@ -48,7 +48,7 @@ dependencies{
 
 	implementation("org.mapstruct:mapstruct:$mapstructVersion")
 
-	kapt("org.mapstruct:mapstruct-processor:$mapstructVersion")
+	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 }
 
 kotlin {
@@ -59,14 +59,12 @@ kotlin {
 	jvmToolchain(21)
 }
 
-kapt {
-	arguments {
-		// Set Mapstruct Configuration options here
-		// https://kotlinlang.org/docs/reference/kapt.html#annotation-processor-arguments
-		// https://mapstruct.org/documentation/stable/reference/html/#configuration-options
-		arg("mapstruct.defaultComponentModel", "spring")
+tasks.withType<JavaCompile> {
+	options.compilerArgs.apply {
+		add("-Amapstruct.defaultComponentModel=spring")
 	}
 }
+
 
 tasks.withType<Test> {
 	useJUnitPlatform()

@@ -1,5 +1,6 @@
 package de.maschmi.blog.backend.poc
 
+import de.maschmi.blog.backend.mapper.StorageBoxMapper
 import domain.*
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
