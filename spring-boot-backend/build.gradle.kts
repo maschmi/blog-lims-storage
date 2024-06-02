@@ -41,6 +41,9 @@ dependencies{
 	testImplementation("io.kotest:kotest-assertions-core:$koTestVersion")
 	testImplementation("io.kotest.extensions:kotest-extensions-spring:$koTestSpringVersion")
 	testImplementation("io.mockk:mockk:${mockkVersion}")
+
+
+	implementation("de.maschmi.blog:lims-storage")
 }
 
 kotlin {
