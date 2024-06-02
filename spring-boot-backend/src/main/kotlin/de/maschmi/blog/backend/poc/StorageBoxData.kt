@@ -4,13 +4,14 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.util.*
 
 @Entity
 @Table(name = "storage_boxes")
-class StorageBoxData(id: String, name: String, description: String) {
+class StorageBoxData(id: UUID, name: String, description: String) {
 
     @Id
-    val id: String = id
+    val id: UUID = id
 
     @Column(name = "name")
     var name: String = name
