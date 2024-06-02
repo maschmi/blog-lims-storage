@@ -16,7 +16,4 @@ interface StorageBoxMapper {
 
     fun toRoomName(value: String): RoomName = RoomName(value = value)
     fun toRoomNameData(value: RoomName): String = value.value
-
-    fun roomToString(room: Room): String = room.name.value
-    fun stringToRoom(value: RoomData): Room = Room(RoomName(value.room))
 }

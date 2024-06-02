@@ -35,8 +35,7 @@ class StorageBox(val id: StorageBoxId, name: StorageBoxName, description: Storag
     }
 }
 
-@JvmInline
-value class StorageBoxId(val value: UUID) {
+data class StorageBoxId(val value: UUID) {
     override fun toString(): String {
         return "StorageBoxId(value=$value)"
     }
@@ -47,15 +46,13 @@ value class StorageBoxId(val value: UUID) {
     }
 }
 
-@JvmInline
-value class StorageBoxName(val value: String) {
+data class StorageBoxName(val value: String) {
     override fun toString(): String {
         return "StorageBoxName(value='$value')"
     }
 }
 
-@JvmInline
-value class StorageBoxDescription(val value: String) {
+data class StorageBoxDescription(val value: String) {
     override fun toString(): String {
         return "ContentDescription(value='$value')"
     }
