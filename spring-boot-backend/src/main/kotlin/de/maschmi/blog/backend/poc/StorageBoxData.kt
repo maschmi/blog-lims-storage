@@ -1,5 +1,6 @@
 package de.maschmi.blog.backend.poc
 
+import de.maschmi.blog.backend.mapper.Default
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -8,7 +9,7 @@ import java.util.*
 
 @Entity
 @Table(name = "storage_boxes")
-class StorageBoxData(id: UUID, name: String, description: String) {
+class StorageBoxData @Default constructor(id: UUID, name: String, description: String) {
 
     @Id
     val id: UUID = id
