@@ -1,3 +1,10 @@
 spring:
   application:
     name: backend
+  datasource:
+    url: jdbc:h2:mem:SA;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: sa
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
