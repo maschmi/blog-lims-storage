@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("org.springframework.boot") version "3.3.0"
@@ -32,7 +31,7 @@ dependencies{
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	runtimeOnly("com.h2database:h2")
-	implementation("org.liquibase:liquibase-core")
+//  implementation("org.liquibase:liquibase-core")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -43,7 +42,7 @@ dependencies{
 	testImplementation("io.mockk:mockk:${mockkVersion}")
 
 
-	implementation("de.maschmi.blog:lims-storage")
+	implementation("de.maschmi.blog:lims-storage-spring-boot-starter")
 }
 
 kotlin {
