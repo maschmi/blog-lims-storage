@@ -38,6 +38,7 @@ allprojects {
             freeCompilerArgs.add("-Xjsr305=strict")
             jvmTarget.set(JvmTarget.JVM_21)
         }
+        jvmToolchain(21)
     }
 
 
