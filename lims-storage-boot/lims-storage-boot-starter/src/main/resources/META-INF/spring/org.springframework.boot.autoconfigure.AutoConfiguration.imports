@@ -1,0 +1,3 @@
+de.maschmi.blog.lims.storage.boot.configuration.StorageCabinetUseCaseAutoConfiguration
+de.maschmi.blog.lims.storage.boot.configuration.StorageDomainAutoConfiguration
+de.maschmi.blog.lims.storage.boot.configuration.StorageRepositoryAutoConfiguration
