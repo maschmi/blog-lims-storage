@@ -2,7 +2,7 @@ package domain
 
 import java.util.*
 
-class StorageBox(val id: StorageBoxId, name: StorageBoxName, description: StorageBoxDescription) {
+class StorageBox internal constructor(val id: StorageBoxId, name: StorageBoxName, description: StorageBoxDescription) {
 
     var name: StorageBoxName = name
         private set
@@ -12,7 +12,7 @@ class StorageBox(val id: StorageBoxId, name: StorageBoxName, description: Storag
 
 
     companion object {
-        fun new(name: StorageBoxName, description: StorageBoxDescription): StorageBox {
+        internal fun new(name: StorageBoxName, description: StorageBoxDescription): StorageBox {
             return StorageBox(StorageBoxId(UUID.randomUUID()),name, description)
         }
     }
