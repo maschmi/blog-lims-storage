@@ -4,7 +4,7 @@ import flatMap
 import java.util.*
 
 
-class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: Room, storageBoxes: List<StorageBox>) {
+class StorageCabinet internal constructor(val id: StorageCabinetId, name: StorageCabinetName, room: Room, storageBoxes: List<StorageBox>) {
 
     var name = name
         private set
@@ -31,7 +31,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
         return id.hashCode()
     }
 
-    fun updateName(newName: StorageCabinetName, validator: StorageValidator): Result<StorageCabinet> {
+    internal fun updateName(newName: StorageCabinetName, validator: StorageValidator): Result<StorageCabinet> {
         return validator.validateName(newName, this.id)
             .map {
                 this.name = it
@@ -39,7 +39,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
             }
     }
 
-    fun addStorageBox(storageBox: StorageBox): Result<StorageCabinet> {
+    internal fun addStorageBox(storageBox: StorageBox): Result<StorageCabinet> {
         return if (_storageBoxes.containsKey(storageBox.id)) {
             Result.failure(AlreadyExists(storageBox.id.toString()))
         } else {
@@ -48,7 +48,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
         }
     }
 
-    fun removeStorageBox(storageBoxId: StorageBoxId): Result<StorageCabinet> {
+    internal fun removeStorageBox(storageBoxId: StorageBoxId): Result<StorageCabinet> {
         return if (!_storageBoxes.containsKey(storageBoxId)) {
             Result.failure(NotFound(storageBoxId.toString()))
         } else {
@@ -60,14 +60,14 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
 
     // we could opt to return nothing or only StorageCabinet
     // However, returning a Result makes the API of the StorageCabinet consistent
-    fun updateRoom(newRoom: Room): Result<StorageCabinet> {
+    internal fun updateRoom(newRoom: Room): Result<StorageCabinet> {
         this.room = newRoom
         return Result.success(this)
     }
 
 
     companion object {
-        fun commission(
+        internal fun commission(
             name: StorageCabinetName,
             room: Room,
             repository: StorageRepository,
@@ -80,7 +80,7 @@ class StorageCabinet(val id: StorageCabinetId, name: StorageCabinetName, room: R
                 }
         }
 
-        fun decommission(id: StorageCabinetId, repository: StorageRepository): Result<Unit> {
+        internal fun decommission(id: StorageCabinetId, repository: StorageRepository): Result<Unit> {
             return repository.get(id)
                 .fold({ success ->
                     if (success._storageBoxes.isNotEmpty()) {
